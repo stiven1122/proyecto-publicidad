@@ -15,7 +15,7 @@ const crearCliente = async (req, res) => {
   try {
     const result = await pool.query(
       'INSERT INTO clientes (nombre, correo, telefono) VALUES ($1, $2, $3) RETURNING *',
-      [nombre, correo, telefono]
+      [nombre, correo, telefono] 
     )
 
     res.status(201).json(result.rows[0])
