@@ -1,5 +1,8 @@
 const clienteModel = require('../models/clienteModel')
 
+// ===============================
+// GET TODOS
+// ===============================
 const obtenerClientes = async (req, res) => {
   try {
     const clientes = await clienteModel.obtenerClientes()
@@ -9,6 +12,23 @@ const obtenerClientes = async (req, res) => {
   }
 }
 
+// ===============================
+// GET POR ID
+// ===============================
+const obtenerClientePorId = async (req, res) => {
+  const { id } = req.params
+
+  try {
+    const cliente = await clienteModel.obtenerClientePorId(id)
+    res.json(cliente)
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+}
+
+// ===============================
+// POST
+// ===============================
 const crearCliente = async (req, res) => {
   const { nombre, correo, telefono } = req.body
 
@@ -20,7 +40,44 @@ const crearCliente = async (req, res) => {
   }
 }
 
+// ===============================
+// PUT
+// ===============================
+const actualizarCliente = async (req, res) => {
+  const { id } = req.params
+  const { nombre, correo, telefono } = req.body
+
+  try {
+    const clienteActualizado = await clienteModel.actualizarCliente(
+      id,
+      nombre,
+      correo,
+      telefono
+    )
+    res.json(clienteActualizado)
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+}
+
+// ===============================
+// DELETE
+// ===============================
+const eliminarCliente = async (req, res) => {
+  const { id } = req.params
+
+  try {
+    await clienteModel.eliminarCliente(id)
+    res.json({ mensaje: 'Cliente eliminado correctamente' })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+}
+
 module.exports = {
   obtenerClientes,
-  crearCliente
+  obtenerClientePorId,
+  crearCliente,
+  actualizarCliente,
+  eliminarCliente
 }
