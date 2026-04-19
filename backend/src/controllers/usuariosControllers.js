@@ -1,26 +1,26 @@
-const clienteModel = require('../models/clienteModel')
+const usuariosModel = require('../models/usuariosModel')
 
-const obtenerClientes = async (req, res) => {
+const obtenerUsuarios = async (req, res) => {
     try {
-        const clientes = await clienteModel.obtenerClientes()
-        res.json(clientes)
+        const usuarios = await usuariosModel.obtenerUsuarios()
+        res.json(usuarios)
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
 }
 
-const crearCliente = async (req, res) => {
-    const { nombre, correo, telefono } = req.body
+const crearUsuario = async (req, res) => {
+    const { nombre, correo, password } = req.body
 
     try {
-        await clienteModel.crearCliente(nombre, correo, telefono)
-        res.status(201).json({ mensaje: 'Cliente creado correctamente' })
+        const nuevoUsuario = await usuariosModel.crearUsuario(nombre, correo, password)
+        res.status(201).json(nuevoUsuario)
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
 }
 
 module.exports = {
-    obtenerClientes,
-    crearCliente
+    obtenerUsuarios,
+    crearUsuario
 }

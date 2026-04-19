@@ -3,7 +3,7 @@ const router = express.Router()
 const {
   obtenerClientes,
   crearCliente
-} = require('../controllers/clientesController')
+} = require('../controllers/clienteControllers')
 
 router.get('/', obtenerClientes)
 router.post('/', crearCliente)

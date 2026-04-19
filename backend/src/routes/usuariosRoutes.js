@@ -1,10 +1,8 @@
 const express = require('express')
-const app = express()
+const router = express.Router()
+const usuariosController = require('../controllers/usuariosControllers')
 
-const clienteRoutes = require('./routes/clienteRoutes')
+router.get('/', usuariosController.obtenerUsuarios)
+router.post('/', usuariosController.crearUsuario)
 
-app.use(express.json())
-
-app.use('/api', clienteRoutes)
-
-module.exports = app
+module.exports = router
