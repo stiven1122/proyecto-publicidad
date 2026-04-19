@@ -1,8 +1,8 @@
 const express = require('express')
 const router = express.Router()
-const pagoController = require('../controllers/pagoController')
+const pagoController = require('../controllers/pagoControllers')
 
-router.get('/pagos', pagoController.obtenerPagos)
-router.post('/pagos', pagoController.crearPago)
+router.get('/', pagoController.obtenerPagos)
+router.post('/', pagoController.crearPago)
 
 module.exports = router

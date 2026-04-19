@@ -1,8 +1,8 @@
 const express = require('express')
 const router = express.Router()
-const campanaController = require('../controllers/campanaController')
+const campanaController = require('../controllers/campanaControllers')
 
-router.get('/campanas', campanaController.obtenerCampanas)
-router.post('/campanas', campanaController.crearCampana)
+router.get('/', campanaController.obtenerCampanas)
+router.post('/', campanaController.crearCampana)
 
 module.exports = router

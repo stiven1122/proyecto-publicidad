@@ -1,9 +1,9 @@
-const pool = require('../config/db')
+const clienteModel = require('../models/clienteModel')
 
 const obtenerClientes = async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM clientes')
-    res.json(result.rows)
+    const clientes = await clienteModel.obtenerClientes()
+    res.json(clientes)
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
@@ -13,12 +13,8 @@ const crearCliente = async (req, res) => {
   const { nombre, correo, telefono } = req.body
 
   try {
-    const result = await pool.query(
-      'INSERT INTO clientes (nombre, correo, telefono) VALUES ($1, $2, $3) RETURNING *',
-      [nombre, correo, telefono] 
-    )
-
-    res.status(201).json(result.rows[0])
+    const nuevoCliente = await clienteModel.crearCliente(nombre, correo, telefono)
+    res.status(201).json(nuevoCliente)
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
