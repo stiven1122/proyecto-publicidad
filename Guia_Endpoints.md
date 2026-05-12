@@ -1,36 +1,84 @@
-# Guía para Probar los Endpoints de la API
+# Guia para Probar los Endpoints de la API
 
-## Requisitos Previos
-Antes de empezar, asegúrate de que:
-1. El contenedor de Docker esté corriendo → `docker-compose up -d`
-2. El servidor Node.js esté corriendo → `node server.js` (en la carpeta `backend`)
-3. En la terminal debes ver: `✅ PostgreSQL conectado correctamente` y `🚀 Servidor corriendo en http://localhost:3000`
+## Requisitos previos
+
+Antes de empezar, asegurate de que:
+
+1. El contenedor de Docker este corriendo:
+   ```bash
+   docker-compose up -d
+   ```
+2. El servidor Node.js este corriendo desde la carpeta `backend`:
+   ```bash
+   node server.js
+   ```
+3. En la terminal deberias ver:
+   ```text
+   PostgreSQL conectado correctamente
+   Servidor corriendo en http://localhost:3000
+   ```
+
+La URL base de la API es:
+
+```text
+http://localhost:3000
+```
 
 ---
 
-## Endpoints Disponibles
+## Resumen de endpoints
 
-### ✅ VERIFICAR QUE EL SERVIDOR FUNCIONA
-
-| Método | URL | Descripción |
-|--------|-----|-------------|
-| GET | `http://localhost:3000/` | Bienvenida |
-| GET | `http://localhost:3000/api/health` | Estado de la API |
+| Metodo | Endpoint | Descripcion |
+|--------|----------|-------------|
+| GET | `/` | Mensaje de bienvenida |
+| GET | `/api/health` | Verifica el estado de la API |
+| GET | `/api/clientes` | Obtiene todos los clientes |
+| POST | `/api/clientes` | Crea un cliente |
+| GET | `/api/usuarios` | Obtiene todos los usuarios |
+| POST | `/api/usuarios` | Crea un usuario |
+| GET | `/api/campanas` | Obtiene todas las campanas |
+| POST | `/api/campanas` | Crea una campana |
+| GET | `/api/anuncios` | Obtiene todos los anuncios |
+| POST | `/api/anuncios` | Crea un anuncio |
+| GET | `/api/pagos` | Obtiene todos los pagos |
+| POST | `/api/pagos` | Registra un pago |
+| GET | `/api/reportes` | Obtiene todos los reportes |
+| POST | `/api/reportes` | Crea un reporte |
+| GET | `/api/reportes/campanas` | Obtiene el reporte por campana |
 
 ---
 
-### 👤 CLIENTES  — `/api/clientes`
+## Verificar que el servidor funciona
 
-#### GET — Obtener todos los clientes
-- **URL:** `http://localhost:3000/api/clientes`
-- **Método:** `GET`
+### GET - Bienvenida
+
+- **URL:** `http://localhost:3000/`
+- **Metodo:** `GET`
 - **Body:** Ninguno
 
-#### POST — Crear un cliente
+### GET - Estado de la API
+
+- **URL:** `http://localhost:3000/api/health`
+- **Metodo:** `GET`
+- **Body:** Ninguno
+
+---
+
+## Clientes - `/api/clientes`
+
+### GET - Obtener todos los clientes
+
 - **URL:** `http://localhost:3000/api/clientes`
-- **Método:** `POST`
+- **Metodo:** `GET`
+- **Body:** Ninguno
+
+### POST - Crear un cliente
+
+- **URL:** `http://localhost:3000/api/clientes`
+- **Metodo:** `POST`
 - **Headers:** `Content-Type: application/json`
-- **Body (raw JSON):**
+- **Body:**
+
 ```json
 {
   "nombre": "Carlos Martinez",
@@ -41,18 +89,21 @@ Antes de empezar, asegúrate de que:
 
 ---
 
-### 🙍 USUARIOS — `/api/usuarios`
+## Usuarios - `/api/usuarios`
 
-#### GET — Obtener todos los usuarios
+### GET - Obtener todos los usuarios
+
 - **URL:** `http://localhost:3000/api/usuarios`
-- **Método:** `GET`
+- **Metodo:** `GET`
 - **Body:** Ninguno
 
-#### POST — Crear un usuario
+### POST - Crear un usuario
+
 - **URL:** `http://localhost:3000/api/usuarios`
-- **Método:** `POST`
+- **Metodo:** `POST`
 - **Headers:** `Content-Type: application/json`
-- **Body (raw JSON):**
+- **Body:**
+
 ```json
 {
   "nombre": "Maria Gomez",
@@ -63,44 +114,51 @@ Antes de empezar, asegúrate de que:
 
 ---
 
-### 📢 CAMPAÑAS — `/api/campanas`
+## Campanas - `/api/campanas`
 
-#### GET — Obtener todas las campañas
+### GET - Obtener todas las campanas
+
 - **URL:** `http://localhost:3000/api/campanas`
-- **Método:** `GET`
+- **Metodo:** `GET`
 - **Body:** Ninguno
 
-#### POST — Crear una campaña
+### POST - Crear una campana
+
 - **URL:** `http://localhost:3000/api/campanas`
-- **Método:** `POST`
+- **Metodo:** `POST`
 - **Headers:** `Content-Type: application/json`
-- **Body (raw JSON):**
+- **Body:**
+
 ```json
 {
-  "nombre": "Campaña Verano 2026",
-  "descripcion": "Promoción de temporada de verano",
+  "nombre": "Campana Verano 2026",
+  "descripcion": "Promocion de temporada de verano",
   "fecha_inicio": "2026-06-01",
   "fecha_fin": "2026-08-31",
   "estado": "activa",
   "id_cliente": 1
 }
 ```
-> ⚠️ El `id_cliente` debe ser un cliente que ya exista en la base de datos.
+
+Nota: `id_cliente` debe ser un cliente que ya exista en la base de datos.
 
 ---
 
-### 📣 ANUNCIOS — `/api/anuncios`
+## Anuncios - `/api/anuncios`
 
-#### GET — Obtener todos los anuncios
+### GET - Obtener todos los anuncios
+
 - **URL:** `http://localhost:3000/api/anuncios`
-- **Método:** `GET`
+- **Metodo:** `GET`
 - **Body:** Ninguno
 
-#### POST — Crear un anuncio
+### POST - Crear un anuncio
+
 - **URL:** `http://localhost:3000/api/anuncios`
-- **Método:** `POST`
+- **Metodo:** `POST`
 - **Headers:** `Content-Type: application/json`
-- **Body (raw JSON):**
+- **Body:**
+
 ```json
 {
   "titulo": "Gran Oferta de Verano",
@@ -109,22 +167,26 @@ Antes de empezar, asegúrate de que:
   "id_campana": 1
 }
 ```
-> ⚠️ El `id_campana` debe ser una campaña que ya exista.
+
+Nota: `id_campana` debe ser una campana que ya exista en la base de datos.
 
 ---
 
-### 💳 PAGOS — `/api/pagos`
+## Pagos - `/api/pagos`
 
-#### GET — Obtener todos los pagos
+### GET - Obtener todos los pagos
+
 - **URL:** `http://localhost:3000/api/pagos`
-- **Método:** `GET`
+- **Metodo:** `GET`
 - **Body:** Ninguno
 
-#### POST — Registrar un pago
+### POST - Registrar un pago
+
 - **URL:** `http://localhost:3000/api/pagos`
-- **Método:** `POST`
+- **Metodo:** `POST`
 - **Headers:** `Content-Type: application/json`
-- **Body (raw JSON):**
+- **Body:**
+
 ```json
 {
   "monto": 500.50,
@@ -133,71 +195,74 @@ Antes de empezar, asegúrate de que:
   "id_cliente": 1
 }
 ```
-> ⚠️ El `id_cliente` debe ser un cliente que ya exista.
+
+Nota: `id_cliente` debe ser un cliente que ya exista en la base de datos.
 
 ---
 
-### 📊 REPORTES — `/api/reportes`
+## Reportes - `/api/reportes`
 
-#### GET — Obtener todos los reportes
+### GET - Obtener todos los reportes
+
 - **URL:** `http://localhost:3000/api/reportes`
-- **Método:** `GET`
+- **Metodo:** `GET`
 - **Body:** Ninguno
 
-#### GET — Reporte por campaña
-- **URL:** `http://localhost:3000/api/reportes/campanas`
-- **Método:** `GET`
-- **Body:** Ninguno
+### POST - Crear un reporte
 
-#### POST — Crear un reporte
 - **URL:** `http://localhost:3000/api/reportes`
-- **Método:** `POST`
+- **Metodo:** `POST`
 - **Headers:** `Content-Type: application/json`
-- **Body (raw JSON):**
+- **Body:**
+
 ```json
 {
-  "descripcion": "Reporte mensual de rendimiento de campaña",
+  "descripcion": "Reporte mensual de rendimiento de campana",
   "fecha": "2026-04-19",
   "id_campana": 1
 }
 ```
-> ⚠️ El `id_campana` debe ser una campaña que ya exista.
+
+Nota: `id_campana` debe ser una campana que ya exista en la base de datos.
+
+### GET - Reporte por campana
+
+- **URL:** `http://localhost:3000/api/reportes/campanas`
+- **Metodo:** `GET`
+- **Body:** Ninguno
 
 ---
 
-## Orden Recomendado para Insertar Datos
+## Orden recomendado para insertar datos
 
-Para evitar errores de llaves foráneas, sigue este orden:
+Para evitar errores de llaves foraneas, crea los registros en este orden:
 
-```
-1. Clientes       → POST /api/clientes
-2. Usuarios       → POST /api/usuarios
-3. Campañas       → POST /api/campanas  (necesita id_cliente)
-4. Anuncios       → POST /api/anuncios  (necesita id_campana)
-5. Pagos          → POST /api/pagos     (necesita id_cliente)
-6. Reportes       → POST /api/reportes  (necesita id_campana)
+```text
+1. Clientes  -> POST /api/clientes
+2. Usuarios  -> POST /api/usuarios
+3. Campanas  -> POST /api/campanas  (necesita id_cliente)
+4. Anuncios  -> POST /api/anuncios  (necesita id_campana)
+5. Pagos     -> POST /api/pagos     (necesita id_cliente)
+6. Reportes  -> POST /api/reportes  (necesita id_campana)
 ```
 
 ---
 
-## Respuestas Esperadas
+## Respuestas esperadas
 
-| Código | Significado |
+| Codigo | Significado |
 |--------|-------------|
 | `200 OK` | Consulta GET exitosa |
-| `201 Created` | Registro creado con éxito |
-| `500 Internal Server Error` | Error en el servidor o base de datos (revisa la terminal de Node) |
+| `201 Created` | Registro creado con exito |
+| `500 Internal Server Error` | Error en el servidor o base de datos |
 
 ---
 
-## Cómo usar en Postman
+## Como usar en Postman
 
-1. Abre **Postman**.
-2. Haz clic en **New → HTTP Request**.
-3. Selecciona el método (`GET` o `POST`) en el desplegable de la izquierda.
-4. Pega **solo la URL** en la barra de direcciones.
-5. Para peticiones POST:
-   - Ve a la pestaña **Body**.
-   - Selecciona **raw** y luego elige **JSON** en el desplegable de la derecha.
-   - Pega el JSON del body correspondiente.
-6. Haz clic en **Send**.
+1. Abre Postman.
+2. Haz clic en **New -> HTTP Request**.
+3. Selecciona el metodo (`GET` o `POST`).
+4. Pega la URL completa en la barra de direcciones.
+5. Para peticiones `POST`, ve a **Body**, selecciona **raw** y luego **JSON**.
+6. Pega el JSON correspondiente y haz clic en **Send**.
