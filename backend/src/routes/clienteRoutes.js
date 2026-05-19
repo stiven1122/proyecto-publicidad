@@ -2,10 +2,16 @@ const express = require('express')
 const router = express.Router()
 const {
   obtenerClientes,
-  crearCliente
+  obtenerClientePorId,
+  crearCliente,
+  actualizarCliente,
+  eliminarCliente
 } = require('../controllers/clienteControllers')
 
 router.get('/', obtenerClientes)
+router.get('/:id', obtenerClientePorId)
 router.post('/', crearCliente)
+router.put('/:id', actualizarCliente)
+router.delete('/:id', eliminarCliente)
 
 module.exports = router
