@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import AuthLayout from './AuthLayout';
 
@@ -8,6 +9,7 @@ export default function Register() {
   const [show, setShow] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const { register } = useAuth();
   const navigate = useNavigate();
 
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -15,14 +17,21 @@ export default function Register() {
   const onSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    
     if (form.password.length < 6) {
-      setError('M&iacute;nimo 6 caracteres');
+      setError('La contraseña debe tener al menos 6 caracteres');
       return;
     }
+    
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 800));
-    navigate('/dashboard');
-    setLoading(false);
+    try {
+      await register(form.name, form.email, form.company, form.password);
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.message || 'No se pudo registrar. Intenta de nuevo.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -30,7 +39,11 @@ export default function Register() {
       <h2 className="text-lg font-bold text-gray-900 mb-1">Crear Cuenta</h2>
       <p className="text-sm text-gray-500 mb-6">Reg&iacute;strate para comenzar</p>
 
-      {error && <p className="text-xs text-red-600 mb-4">{error}</p>}
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-lg">
+          <p className="text-sm text-red-600">{error}</p>
+        </div>
+      )}
 
       <form onSubmit={onSubmit} className="space-y-4">
         <div>

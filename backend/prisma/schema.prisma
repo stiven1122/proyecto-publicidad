@@ -1,0 +1,181 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id            Int      @id @default(autoincrement())
+  nombre        String
+  email         String   @unique
+  password      String
+  rol           String   @default("usuario") // admin | usuario
+  estado        String   @default("activo")  // activo | inactivo
+  fechaRegistro DateTime @default(now()) @map("fecha_registro")
+
+  campanas      Campana[]
+  reportes      Reporte[]
+  notificaciones Notificacion[]
+
+  @@map("usuarios")
+}
+
+model Cliente {
+  id            Int      @id @default(autoincrement())
+  nombre        String
+  email         String   @unique
+  telefono      String?
+  direccion     String?
+  fechaRegistro DateTime @default(now()) @map("fecha_registro")
+
+  campanas      Campana[]
+  cotizacionesCampana  CotizacionCampana[]
+  cotizacionesProducto CotizacionProducto[]
+
+  @@map("clientes")
+}
+
+model Producto {
+  id          Int      @id @default(autoincrement())
+  nombre      String
+  descripcion String?
+  precio      Decimal  @db.Decimal(10, 2)
+  categoria   String?
+
+  campanas    Campana[]
+  cotizaciones CotizacionProducto[]
+  campanasAsignadas CampanaProducto[]
+
+  @@map("productos")
+}
+
+model Campana {
+  id           Int       @id @default(autoincrement())
+  nombre       String
+  descripcion  String?
+  objetivos    String?
+  estado       String    @default("activa") // activa | pausada | finalizada
+  fechaInicio  DateTime? @map("fecha_inicio")
+  fechaFin     DateTime? @map("fecha_fin")
+  plataformas  String[]  @default([])
+  presupuesto  Decimal?  @db.Decimal(10, 2)
+  fechaRegistro DateTime @default(now()) @map("fecha_registro")
+
+  clienteId    Int       @map("cliente_id")
+  productoId   Int?      @map("producto_id")
+  creadoPor    Int       @map("creado_por")
+
+  cliente      Cliente   @relation(fields: [clienteId], references: [id])
+  producto     Producto? @relation(fields: [productoId], references: [id])
+  usuario      Usuario   @relation(fields: [creadoPor], references: [id])
+
+  metricas     Metrica[]
+  reportes     Reporte[]
+  notificaciones Notificacion[]
+  productosAsignados CampanaProducto[]
+
+  @@map("campanas")
+}
+
+model Metrica {
+  id            Int      @id @default(autoincrement())
+  impresiones   Int      @default(0)
+  clics         Int      @default(0)
+  conversiones  Int      @default(0)
+  costo         Decimal  @default(0) @db.Decimal(10, 2)
+  fechaRegistro DateTime @default(now()) @map("fecha_registro")
+
+  campanaId     Int      @map("campana_id")
+  campana       Campana  @relation(fields: [campanaId], references: [id], onDelete: Cascade)
+
+  @@map("metricas")
+}
+
+model Reporte {
+  id              Int      @id @default(autoincrement())
+  tipoReporte     String   @map("tipo_reporte")
+  urlArchivo      String?  @map("url_archivo")
+  fechaGeneracion DateTime @default(now()) @map("fecha_generacion")
+
+  campanaId    Int       @map("campana_id")
+  generadoPor  Int       @map("generado_por")
+
+  campana      Campana   @relation(fields: [campanaId], references: [id])
+  usuario      Usuario   @relation(fields: [generadoPor], references: [id])
+
+  @@map("reportes")
+}
+
+model Integracion {
+  id             Int      @id @default(autoincrement())
+  nombrePlataforma String @map("nombre_plataforma")
+  apiKey         String   @map("api_key")
+  estado         String   @default("activa")
+  fechaConexion  DateTime @default(now()) @map("fecha_conexion")
+
+  @@map("integraciones")
+}
+
+model Notificacion {
+  id        Int      @id @default(autoincrement())
+  mensaje   String
+  leida     Boolean  @default(false)
+  fecha     DateTime @default(now())
+
+  usuarioId  Int     @map("usuario_id")
+  campanaId  Int?    @map("campana_id")
+
+  usuario    Usuario  @relation(fields: [usuarioId], references: [id])
+  campana    Campana? @relation(fields: [campanaId], references: [id])
+
+  @@map("notificaciones")
+}
+
+model CotizacionCampana {
+  id          Int      @id @default(autoincrement())
+  nombre      String
+  descripcion String?
+  estado      String   @default("pendiente") // pendiente | aprobada | rechazada
+  fechaSolicitud DateTime @default(now()) @map("fecha_solicitud")
+  fechaRespuesta DateTime? @map("fecha_respuesta")
+
+  clienteId   Int      @map("cliente_id")
+  cliente     Cliente  @relation(fields: [clienteId], references: [id])
+
+  @@map("cotizaciones_campanas")
+}
+
+model CotizacionProducto {
+  id          Int      @id @default(autoincrement())
+  descripcion String?
+  inversion   Decimal? @db.Decimal(10, 2)
+  estado      String   @default("pendiente") // pendiente | aprobada | rechazada
+  fechaSolicitud DateTime @default(now()) @map("fecha_solicitud")
+  fechaRespuesta DateTime? @map("fecha_respuesta")
+
+  productoId  Int      @map("producto_id")
+  producto    Producto @relation(fields: [productoId], references: [id])
+
+  clienteId   Int      @map("cliente_id")
+  cliente     Cliente  @relation(fields: [clienteId], references: [id])
+
+  @@map("cotizaciones_productos")
+}
+
+model CampanaProducto {
+  id            Int      @id @default(autoincrement())
+  cantidad      Int      @default(1)
+  precioUnitario Decimal @db.Decimal(10, 2) @map("precio_unitario")
+  fechaAsignacion DateTime @default(now()) @map("fecha_asignacion")
+
+  campanaId     Int      @map("campana_id")
+  campana       Campana  @relation(fields: [campanaId], references: [id], onDelete: Cascade)
+
+  productoId    Int      @map("producto_id")
+  producto      Producto @relation(fields: [productoId], references: [id])
+
+  @@map("campana_productos")
+}

@@ -1,27 +1,41 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import {
-  LayoutDashboard, Megaphone, Users, BarChart3, FileText, Plug, UserCircle, LogOut, Menu, X
+  LayoutDashboard, Megaphone, Users, BarChart3, FileText, Plug, UserCircle, LogOut, Menu, Package, Bell, ClipboardList
 } from 'lucide-react';
 
-const menu = [
+const menuAdmin = [
   { icon: LayoutDashboard, label: 'Panel Principal', path: '/dashboard' },
   { icon: Megaphone, label: 'Campañas', path: '/campaigns' },
   { icon: Users, label: 'Clientes', path: '/customers' },
-  { icon: BarChart3, label: 'Analítica', path: '/analytics' },
-  { icon: FileText, label: 'Reportes', path: '/reports' },
+  { icon: Package, label: 'Productos', path: '/products' },
+  { icon: BarChart3, label: 'Analítica y Reportes', path: '/analytics' },
+  { icon: ClipboardList, label: 'Cotizaciones', path: '/quotes' },
   { icon: Plug, label: 'Integraciones', path: '/integrations' },
   { icon: UserCircle, label: 'Usuarios', path: '/users' },
+  { icon: Bell, label: 'Notificaciones', path: '/notifications' },
+];
+
+const menuCliente = [
+  { icon: LayoutDashboard, label: 'Mi Panel', path: '/dashboard' },
+  { icon: Megaphone, label: 'Mis Campañas', path: '/campaigns' },
+  { icon: Users, label: 'Mi Perfil', path: '/customers' },
+  { icon: Package, label: 'Cotizar Producto', path: '/products' },
+  { icon: BarChart3, label: 'Mis Métricas', path: '/analytics' },
+  { icon: Bell, label: 'Notificaciones', path: '/notifications' },
 ];
 
 export default function Layout({ children }) {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const { user, logout, isAdmin, isCliente } = useAuth();
+
+  const menu = isAdmin ? menuAdmin : menuCliente;
 
   const onLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    logout();
     navigate('/login');
   };
 
@@ -72,9 +86,12 @@ export default function Layout({ children }) {
             </button>
             <div className="flex items-center gap-4 ml-auto">
               <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">Usuario Demo</p>
-                <p className="text-xs text-gray-500">admin@empresa.com</p>
+                <p className="text-sm font-medium text-gray-900">{user?.nombre || 'Usuario'}</p>
+                <p className="text-xs text-gray-500">{user?.email || ''}</p>
               </div>
+              <span className={`px-2 py-1 text-xs font-medium rounded-full ${isAdmin ? 'bg-indigo-100 text-indigo-700' : isCliente ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
+                {isAdmin ? 'Administrador' : isCliente ? 'Cliente' : 'Usuario'}
+              </span>
               <button onClick={onLogout} className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
                 <LogOut className="w-4 h-4" />
                 Salir

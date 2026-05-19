@@ -1,20 +1,34 @@
-const pool = require('../config/db')
+const prisma = require('../lib/prisma')
 
 const obtenerClientes = async () => {
-    const result = await pool.query('SELECT * FROM clientes')
-    return result.rows
+    return await prisma.cliente.findMany()
 }
 
-const crearCliente = async (nombre, correo, telefono) => {
-    // Assuming there is a function crear_cliente, or we can use INSERT
-    const result = await pool.query(
-      'INSERT INTO clientes (nombre, correo, telefono) VALUES ($1, $2, $3) RETURNING *',
-      [nombre, correo, telefono]
-    )
-    return result.rows[0]
+const crearCliente = async (nombre, email, telefono, direccion) => {
+    // Verificar email único antes de insertar
+    const existente = await prisma.cliente.findUnique({ where: { email } })
+    if (existente) throw new Error('El correo del cliente ya esta registrado')
+    
+    const cliente = await prisma.cliente.create({
+        data: { nombre, email, telefono, direccion }
+    })
+    return cliente
+}
+
+const obtenerClientePorId = async (id) => {
+    return await prisma.cliente.findUnique({ where: { id: Number(id) } })
+}
+
+const obtenerCampanasPorCliente = async (clienteId) => {
+    return await prisma.campana.findMany({
+        where: { clienteId: Number(clienteId) },
+        include: { cliente: true, producto: true, usuario: { select: { id: true, nombre: true } } }
+    })
 }
 
 module.exports = {
     obtenerClientes,
-    crearCliente
+    crearCliente,
+    obtenerClientePorId,
+    obtenerCampanasPorCliente
 }

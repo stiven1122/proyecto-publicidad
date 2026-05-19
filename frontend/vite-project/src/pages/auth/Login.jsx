@@ -17,14 +17,15 @@ export default function Login() {
     e.preventDefault();
     setError('');
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 800));
-    if (email === 'admin@empresa.com' && password === 'password') {
-      login({ name: 'Usuario Demo', email }, 'token');
+    
+    try {
+      await login(email, password);
       navigate('/dashboard');
-    } else {
-      setError('Credenciales incorrectas');
+    } catch (err) {
+      setError(err.message || 'No se pudo iniciar sesión. Intenta de nuevo más tarde.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -32,7 +33,11 @@ export default function Login() {
       <h2 className="text-lg font-bold text-gray-900 mb-1">Bienvenido</h2>
       <p className="text-sm text-gray-500 mb-6">Ingresa tus credenciales para acceder</p>
 
-      {error && <p className="text-xs text-red-600 mb-4">{error}</p>}
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-100 rounded-lg">
+          <p className="text-sm text-red-600">{error}</p>
+        </div>
+      )}
 
       <form onSubmit={onSubmit} className="space-y-4">
         <div>
@@ -73,7 +78,9 @@ export default function Login() {
         </button>
       </form>
 
-      <p className="mt-4 text-center text-xs text-gray-400">Demo: admin@empresa.com / password</p>
+      <p className="mt-4 text-center text-xs text-gray-400">
+        Demo: admin@empresa.com / password
+      </p>
     </AuthLayout>
   );
 }

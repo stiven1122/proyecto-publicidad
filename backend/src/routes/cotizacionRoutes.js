@@ -1,0 +1,23 @@
+const express = require('express')
+const router = express.Router()
+const { authMiddleware, adminMiddleware } = require('../middlewares/auth')
+const {
+    listarCotizacionesCampana,
+    crearCotizacionCampana,
+    actualizarEstadoCotizacionCampana,
+    listarCotizacionesProducto,
+    crearCotizacionProducto,
+    actualizarEstadoCotizacionProducto
+} = require('../controllers/cotizacionControllers')
+
+// Cotizaciones de Campaña
+router.get('/campanas', authMiddleware, listarCotizacionesCampana)
+router.post('/campanas', authMiddleware, crearCotizacionCampana)
+router.put('/campanas/:id/estado', authMiddleware, adminMiddleware, actualizarEstadoCotizacionCampana)
+
+// Cotizaciones de Producto
+router.get('/productos', authMiddleware, listarCotizacionesProducto)
+router.post('/productos', authMiddleware, crearCotizacionProducto)
+router.put('/productos/:id/estado', authMiddleware, adminMiddleware, actualizarEstadoCotizacionProducto)
+
+module.exports = router

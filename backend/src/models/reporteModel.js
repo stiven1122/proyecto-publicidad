@@ -1,24 +1,38 @@
-const pool = require('../config/db')
+const prisma = require('../lib/prisma')
 
 const obtenerReportes = async () => {
-    const result = await pool.query('SELECT * FROM reportes')
-    return result.rows
+    return await prisma.reporte.findMany({
+        include: {
+            campana: { select: { id: true, nombre: true } },
+            usuario: { select: { id: true, nombre: true } }
+        }
+    })
 }
 
-const crearReporte = async (descripcion, fecha, id_campana) => {
-    await pool.query(
-        'SELECT crear_reporte($1, $2, $3)',
-        [descripcion, fecha, id_campana]
-    )
+const generarReporte = async (campanaId, generadoPor, tipoReporte, urlArchivo) => {
+    const reporte = await prisma.reporte.create({
+        data: {
+            campanaId: Number(campanaId),
+            generadoPor: Number(generadoPor),
+            tipoReporte,
+            urlArchivo
+        }
+    })
+    return reporte
 }
 
 const reporteCampana = async () => {
-    const result = await pool.query('SELECT * FROM obtener_reporte_campana()')
-    return result.rows
+    return await prisma.campana.findMany({
+        include: {
+            cliente: true,
+            metricas: true,
+            reportes: true
+        }
+    })
 }
 
 module.exports = {
     obtenerReportes,
-    crearReporte,
+    generarReporte,
     reporteCampana
 }
