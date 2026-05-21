@@ -4,6 +4,7 @@ const { authMiddleware, adminMiddleware } = require('../middlewares/auth')
 const {
     listarCotizacionesCampana,
     crearCotizacionCampana,
+    cotizarCotizacionCampana,
     actualizarEstadoCotizacionCampana,
     listarCotizacionesProducto,
     crearCotizacionProducto,
@@ -13,7 +14,8 @@ const {
 // Cotizaciones de Campaña
 router.get('/campanas', authMiddleware, listarCotizacionesCampana)
 router.post('/campanas', authMiddleware, crearCotizacionCampana)
-router.put('/campanas/:id/estado', authMiddleware, adminMiddleware, actualizarEstadoCotizacionCampana)
+router.put('/campanas/:id/cotizar', authMiddleware, adminMiddleware, cotizarCotizacionCampana)
+router.put('/campanas/:id/estado', authMiddleware, actualizarEstadoCotizacionCampana)
 
 // Cotizaciones de Producto
 router.get('/productos', authMiddleware, listarCotizacionesProducto)

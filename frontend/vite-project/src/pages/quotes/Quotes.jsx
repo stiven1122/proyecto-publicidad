@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { FileText, CheckCircle, XCircle, Megaphone, Package, Calendar, User, Loader2 } from 'lucide-react';
+import { CheckCircle, XCircle, Megaphone, Package, Calendar, User, Loader2, DollarSign, Send, Clock } from 'lucide-react';
 import { CotizacionesAPI } from '../../services/api';
 import { useNotification } from '../../context/NotificationContext';
 import { Modal, ConfirmModal } from '../../components/Modal';
 
 const statusColors = {
   pendiente: 'bg-yellow-100 text-yellow-700',
+  cotizada: 'bg-blue-100 text-blue-700',
   aprobada: 'bg-green-100 text-green-700',
   rechazada: 'bg-red-100 text-red-700',
 };
@@ -17,6 +18,14 @@ export default function Quotes() {
   const [loading, setLoading] = useState(true);
   const [actionItem, setActionItem] = useState(null);
   const [actionType, setActionType] = useState(null); // 'aprobar' | 'rechazar'
+  const [cotizarItem, setCotizarItem] = useState(null);
+  const [cotizarForm, setCotizarForm] = useState({
+    presupuesto: '',
+    fechaInicio: '',
+    fechaFin: '',
+    respuesta: '',
+    objetivos: ''
+  });
   const { success, error } = useNotification();
 
   async function load() {
@@ -56,6 +65,26 @@ export default function Quotes() {
     }
   };
 
+  const handleCotizar = async (e) => {
+    e.preventDefault();
+    if (!cotizarItem) return;
+    try {
+      await CotizacionesAPI.cotizarCampana(cotizarItem.id, {
+        presupuesto: Number(cotizarForm.presupuesto),
+        fechaInicio: cotizarForm.fechaInicio,
+        fechaFin: cotizarForm.fechaFin,
+        respuesta: cotizarForm.respuesta,
+        objetivos: cotizarForm.objetivos,
+      });
+      success('Cotización enviada al cliente exitosamente');
+      setCotizarItem(null);
+      setCotizarForm({ presupuesto: '', fechaInicio: '', fechaFin: '', respuesta: '', objetivos: '' });
+      load();
+    } catch (err) {
+      error(err.message || 'Error al enviar la cotización');
+    }
+  };
+
   const tabs = [
     { id: 'campanas', label: 'Cotizaciones de Campaña', icon: Megaphone },
     { id: 'productos', label: 'Cotizaciones de Producto', icon: Package },
@@ -73,6 +102,12 @@ export default function Quotes() {
                 <span className={`inline-flex px-2.5 py-1 text-xs font-medium rounded-full ${statusColors[c.estado] || 'bg-gray-100'}`}>{c.estado}</span>
               </div>
               <p className="text-sm text-gray-600 mb-3">{c.descripcion || 'Sin descripción'}</p>
+              {c.estado === 'cotizada' && (
+                <div className="flex items-center gap-4 text-xs text-gray-600 mb-2">
+                  <span className="flex items-center gap-1"><DollarSign className="w-3.5 h-3.5" />Presupuesto: ${Number(c.presupuesto).toLocaleString()}</span>
+                  <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" />{c.fechaInicio?.slice(0,10)} - {c.fechaFin?.slice(0,10)}</span>
+                </div>
+              )}
               <div className="flex items-center gap-4 text-xs text-gray-500">
                 <span className="flex items-center gap-1"><User className="w-3.5 h-3.5" />{c.cliente?.nombre || 'N/A'}</span>
                 <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" />{c.fechaSolicitud?.slice(0,10)}</span>
@@ -80,12 +115,23 @@ export default function Quotes() {
             </div>
             {c.estado === 'pendiente' && (
               <div className="flex gap-2 ml-4">
-                <button onClick={() => { setActionItem(c); setActionType('aprobar'); }} className="flex items-center gap-1 px-3 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700">
-                  <CheckCircle className="w-4 h-4" />Aprobar
+                <button onClick={() => { setCotizarItem(c); }} className="flex items-center gap-1 px-3 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700">
+                  <Send className="w-4 h-4" />Cotizar
                 </button>
-                <button onClick={() => { setActionItem(c); setActionType('rechazar'); }} className="flex items-center gap-1 px-3 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700">
-                  <XCircle className="w-4 h-4" />Rechazar
-                </button>
+              </div>
+            )}
+            {c.estado === 'cotizada' && (
+              <div className="ml-4">
+                <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-700 text-xs font-medium rounded-lg">
+                  <Clock className="w-3.5 h-3.5" />Esperando respuesta del cliente
+                </span>
+              </div>
+            )}
+            {(c.estado === 'aprobada' || c.estado === 'rechazada') && (
+              <div className="ml-4">
+                <span className={`inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg ${c.estado === 'aprobada' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+                  {c.estado === 'aprobada' ? 'Aprobada por el cliente — Campaña creada' : 'Rechazada por el cliente'}
+                </span>
               </div>
             )}
           </div>
@@ -158,6 +204,44 @@ export default function Quotes() {
       ) : (
         activeTab === 'campanas' ? renderCampanas() : renderProductos()
       )}
+
+      {/* Cotizar Modal */}
+      <Modal open={!!cotizarItem} onClose={() => { setCotizarItem(null); setCotizarForm({ presupuesto: '', fechaInicio: '', fechaFin: '', respuesta: '', objetivos: '' }); }} title="Enviar Cotización al Cliente" maxWidth="max-w-lg">
+        <form onSubmit={handleCotizar} className="space-y-4">
+          <p className="text-sm text-gray-600">Completa los detalles de la cotización para <strong>{cotizarItem?.nombre}</strong>.</p>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Presupuesto ($) <span className="text-red-500">*</span></label>
+            <input type="number" required min="1" placeholder="Ej: 1.500.000" value={cotizarForm.presupuesto} onChange={(e) => setCotizarForm({...cotizarForm, presupuesto: e.target.value})} className="w-full px-4 py-2 border rounded-lg text-sm" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Fecha de inicio <span className="text-red-500">*</span></label>
+              <input type="date" required value={cotizarForm.fechaInicio} onChange={(e) => setCotizarForm({...cotizarForm, fechaInicio: e.target.value})} className="w-full px-4 py-2 border rounded-lg text-sm" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Fecha de fin <span className="text-red-500">*</span></label>
+              <input type="date" required value={cotizarForm.fechaFin} onChange={(e) => setCotizarForm({...cotizarForm, fechaFin: e.target.value})} className="w-full px-4 py-2 border rounded-lg text-sm" />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Descripción de la cotización <span className="text-red-500">*</span></label>
+            <textarea rows={3} required placeholder="Explica al cliente los detalles de la propuesta, alcance, entregables, etc." value={cotizarForm.respuesta} onChange={(e) => setCotizarForm({...cotizarForm, respuesta: e.target.value})} className="w-full px-4 py-2 border rounded-lg text-sm resize-none" />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Objetivos de la campaña</label>
+            <textarea rows={2} placeholder="Ej: Aumentar reconocimiento de marca, generar leads, impulsar ventas..." value={cotizarForm.objetivos} onChange={(e) => setCotizarForm({...cotizarForm, objetivos: e.target.value})} className="w-full px-4 py-2 border rounded-lg text-sm resize-none" />
+          </div>
+
+          <div className="flex gap-2 pt-2">
+            <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700">Enviar Cotización</button>
+            <button type="button" onClick={() => { setCotizarItem(null); setCotizarForm({ presupuesto: '', fechaInicio: '', fechaFin: '', respuesta: '', objetivos: '' }); }} className="px-4 py-2 border rounded-lg text-sm">Cancelar</button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Confirm Modal */}
       <ConfirmModal

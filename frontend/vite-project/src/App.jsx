@@ -3,16 +3,16 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import Layout from './layouts/Layout';
 import Landing from './pages/landing/Landing';
+import Services from './pages/landing/Services';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import Dashboard from './pages/dashboard/Dashboard';
+import Analytics from './pages/analytics/Analytics';
 import Campaigns from './pages/campaigns/Campaigns';
 import Customers from './pages/customers/Customers';
-import AnalyticsReports from './pages/analytics/AnalyticsReports';
 import Integrations from './pages/integrations/Integrations';
 import Users from './pages/users/Users';
 import Products from './pages/products/Products';
-import Notifications from './pages/notifications/Notifications';
 import Quotes from './pages/quotes/Quotes';
 
 function Protected({ children, adminOnly = false }) {
@@ -33,8 +33,9 @@ export default function App() {
       <AuthProvider>
         <NotificationProvider>
           <Routes>
-            {/* Landing - accesible para todos */}
-            <Route path="/" element={<Landing />} />
+            {/* Landing - redirige a Dashboard si está autenticado */}
+            <Route path="/" element={<Public><Landing /></Public>} />
+            <Route path="/servicios" element={<Services />} />
 
             {/* Public Auth */}
             <Route path="/login" element={<Public><Login /></Public>} />
@@ -42,12 +43,10 @@ export default function App() {
 
             {/* Protected - Admin + User */}
             <Route path="/dashboard" element={<Protected><Layout><Dashboard /></Layout></Protected>} />
+            <Route path="/analytics" element={<Protected><Layout><Analytics /></Layout></Protected>} />
             <Route path="/campaigns" element={<Protected><Layout><Campaigns /></Layout></Protected>} />
             <Route path="/customers" element={<Protected><Layout><Customers /></Layout></Protected>} />
             <Route path="/products" element={<Protected><Layout><Products /></Layout></Protected>} />
-            <Route path="/analytics" element={<Protected><Layout><AnalyticsReports /></Layout></Protected>} />
-            <Route path="/notifications" element={<Protected><Layout><Notifications /></Layout></Protected>} />
-
             {/* Protected - Admin Only */}
             <Route path="/integrations" element={<Protected adminOnly><Layout><Integrations /></Layout></Protected>} />
             <Route path="/users" element={<Protected adminOnly><Layout><Users /></Layout></Protected>} />

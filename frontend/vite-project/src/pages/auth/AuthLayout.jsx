@@ -24,7 +24,7 @@ export default function AuthLayout({ children, activeTab }) {
               activeTab === 'login' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            Iniciar Sesi&oacute;n
+            Inicio de Sesi&oacute;n
           </Link>
           <Link
             to="/register"

@@ -52,22 +52,11 @@ export const MetricasAPI = {
   byCampana: (campanaId) => api(`/api/metricas/${campanaId}`),
 };
 
-export const ReportesAPI = {
-  list: () => api('/api/reportes'),
-  generate: (body) => api('/api/reportes/generar', { method: 'POST', body: JSON.stringify(body) }),
-  resumen: () => api('/api/reportes/campana/resumen'),
-};
-
 export const IntegracionesAPI = {
   list: () => api('/api/integraciones'),
   create: (body) => api('/api/integraciones', { method: 'POST', body: JSON.stringify(body) }),
   update: (id, body) => api(`/api/integraciones/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
   remove: (id) => api(`/api/integraciones/${id}`, { method: 'DELETE' }),
-};
-
-export const NotificacionesAPI = {
-  list: (usuarioId) => api(`/api/notificaciones?usuarioId=${usuarioId}`),
-  markRead: (id) => api(`/api/notificaciones/${id}/leida`, { method: 'PUT' }),
 };
 
 export const PanelAPI = {
@@ -84,6 +73,7 @@ export const CotizacionesAPI = {
   // Campañas
   listCampanas: () => api('/api/cotizaciones/campanas'),
   createCampana: (body) => api('/api/cotizaciones/campanas', { method: 'POST', body: JSON.stringify(body) }),
+  cotizarCampana: (id, body) => api(`/api/cotizaciones/campanas/${id}/cotizar`, { method: 'PUT', body: JSON.stringify(body) }),
   updateCampanaStatus: (id, estado) => api(`/api/cotizaciones/campanas/${id}/estado`, { method: 'PUT', body: JSON.stringify({ estado }) }),
   // Productos
   listProductos: () => api('/api/cotizaciones/productos'),

@@ -138,7 +138,13 @@ model CotizacionCampana {
   id          Int      @id @default(autoincrement())
   nombre      String
   descripcion String?
-  estado      String   @default("pendiente") // pendiente | aprobada | rechazada
+  estado      String   @default("pendiente") // pendiente | cotizada | aprobada | rechazada
+  presupuesto Decimal? @db.Decimal(10, 2)
+  fechaInicio DateTime? @map("fecha_inicio")
+  fechaFin    DateTime? @map("fecha_fin")
+  respuesta   String?  @map("respuesta")
+  objetivos   String?  @map("objetivos")
+  plataformas String[] @default([])
   fechaSolicitud DateTime @default(now()) @map("fecha_solicitud")
   fechaRespuesta DateTime? @map("fecha_respuesta")
 

@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
-  LayoutDashboard, Megaphone, Users, BarChart3, FileText, Plug, UserCircle, LogOut, Menu, Package, Bell, ClipboardList
+  LayoutDashboard, Megaphone, Users, Plug, UserCircle, LogOut, Menu, Package, ClipboardList, BarChart3
 } from 'lucide-react';
 
 const menuAdmin = [
@@ -10,11 +10,10 @@ const menuAdmin = [
   { icon: Megaphone, label: 'Campañas', path: '/campaigns' },
   { icon: Users, label: 'Clientes', path: '/customers' },
   { icon: Package, label: 'Productos', path: '/products' },
-  { icon: BarChart3, label: 'Analítica y Reportes', path: '/analytics' },
+  { icon: BarChart3, label: 'Analítica', path: '/analytics' },
   { icon: ClipboardList, label: 'Cotizaciones', path: '/quotes' },
   { icon: Plug, label: 'Integraciones', path: '/integrations' },
   { icon: UserCircle, label: 'Usuarios', path: '/users' },
-  { icon: Bell, label: 'Notificaciones', path: '/notifications' },
 ];
 
 const menuCliente = [
@@ -23,20 +22,17 @@ const menuCliente = [
   { icon: Users, label: 'Mi Perfil', path: '/customers' },
   { icon: Package, label: 'Cotizar Producto', path: '/products' },
   { icon: BarChart3, label: 'Mis Métricas', path: '/analytics' },
-  { icon: Bell, label: 'Notificaciones', path: '/notifications' },
 ];
 
 export default function Layout({ children }) {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
-  const navigate = useNavigate();
   const { user, logout, isAdmin, isCliente } = useAuth();
 
   const menu = isAdmin ? menuAdmin : menuCliente;
 
   const onLogout = () => {
     logout();
-    navigate('/login');
   };
 
   return (

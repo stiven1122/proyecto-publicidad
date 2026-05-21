@@ -14,8 +14,11 @@ export default function Landing() {
             <span className="text-lg font-bold text-gray-900">AdManager Pro</span>
           </div>
           <div className="flex items-center gap-3">
+            <Link to="/servicios" className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900">
+              Servicios
+            </Link>
             <Link to="/login" className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900">
-              Iniciar Sesión
+              Inicio de Sesión
             </Link>
             <Link to="/register" className="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800">
               Registrarse

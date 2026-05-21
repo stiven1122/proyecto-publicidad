@@ -32,6 +32,24 @@ const crearCotizacionCampana = async (req, res) => {
     }
 }
 
+const cotizarCotizacionCampana = async (req, res) => {
+    const { id } = req.params
+    const { presupuesto, fechaInicio, fechaFin, respuesta, objetivos, plataformas } = req.body
+    try {
+        const cotizacion = await prisma.cotizacionCampana.findUnique({ where: { id: Number(id) } })
+        if (!cotizacion) {
+            return res.status(404).json({ error: 'No encontrada', mensaje: 'La cotización no existe.' })
+        }
+        if (cotizacion.estado !== 'pendiente') {
+            return res.status(400).json({ error: 'Estado inválido', mensaje: 'Solo se pueden cotizar solicitudes pendientes.' })
+        }
+        const actualizada = await cotizacionModel.cotizarCampana(id, { presupuesto, fechaInicio, fechaFin, respuesta, objetivos, plataformas })
+        res.json({ mensaje: 'Cotización enviada al cliente exitosamente', data: actualizada })
+    } catch (error) {
+        res.status(500).json({ error: `Error: ${error.message}`, mensaje: 'No se pudo enviar la cotización.' })
+    }
+}
+
 const actualizarEstadoCotizacionCampana = async (req, res) => {
     const { id } = req.params
     const { estado } = req.body // aprobada | rechazada
@@ -39,21 +57,32 @@ const actualizarEstadoCotizacionCampana = async (req, res) => {
         if (!['aprobada', 'rechazada'].includes(estado)) {
             return res.status(400).json({ error: 'Estado inválido', mensaje: 'El estado debe ser "aprobada" o "rechazada"' })
         }
+
+        const cotizacion = await prisma.cotizacionCampana.findUnique({ where: { id: Number(id) } })
+        if (!cotizacion) {
+            return res.status(404).json({ error: 'No encontrada', mensaje: 'La cotización no existe.' })
+        }
+
+        // Solo permitir aprobar si está en estado 'cotizada'
+        if (estado === 'aprobada' && cotizacion.estado !== 'cotizada') {
+            return res.status(400).json({ error: 'Estado inválido', mensaje: 'Solo se puede aprobar una cotización que ya ha sido cotizada por el administrador.' })
+        }
+
         const actualizada = await cotizacionModel.actualizarEstadoCotizacionCampana(id, estado)
 
         // Si es aprobada, crear la campaña automáticamente
         if (estado === 'aprobada') {
-            const cotizacion = await prisma.cotizacionCampana.findUnique({ where: { id: Number(id) }, include: { cliente: true } })
-            if (cotizacion) {
-                await campanaModel.crearCampana({
-                    nombre: cotizacion.nombre,
-                    descripcion: cotizacion.descripcion,
-                    estado: 'activa',
-                    clienteId: cotizacion.clienteId,
-                    creadoPor: req.usuario?.id || 1,
-                    plataformas: []
-                })
-            }
+            await campanaModel.crearCampana({
+                nombre: cotizacion.nombre,
+                descripcion: cotizacion.descripcion,
+                estado: 'activa',
+                clienteId: cotizacion.clienteId,
+                creadoPor: req.usuario?.id || 1,
+                plataformas: [],
+                presupuesto: cotizacion.presupuesto,
+                fechaInicio: cotizacion.fechaInicio,
+                fechaFin: cotizacion.fechaFin
+            })
         }
 
         res.json({ mensaje: `Cotización ${estado} exitosamente`, data: actualizada })
@@ -109,6 +138,7 @@ const actualizarEstadoCotizacionProducto = async (req, res) => {
 module.exports = {
     listarCotizacionesCampana,
     crearCotizacionCampana,
+    cotizarCotizacionCampana,
     actualizarEstadoCotizacionCampana,
     listarCotizacionesProducto,
     crearCotizacionProducto,

@@ -14,6 +14,7 @@ const cotizacionRoutes = require('./routes/cotizacionRoutes')
 const campanaProductoRoutes = require('./routes/campanaProductoRoutes')
 const { authMiddleware, adminMiddleware } = require('./middlewares/auth')
 const authController = require('./controllers/authControllers')
+const { obtenerProductos } = require('./controllers/productoControllers')
 
 const app = express()
 
@@ -45,6 +46,9 @@ app.use('/api/integraciones', integracionRoutes)
 app.use('/api/notificaciones', notificacionRoutes)
 app.use('/api/panel', panelRoutes)
 app.use('/api/cotizaciones', cotizacionRoutes)
+
+// Public endpoints (no auth required)
+app.get('/api/public/productos', obtenerProductos)
 
 // 404 - Ruta no encontrada
 app.use((req, res) => {

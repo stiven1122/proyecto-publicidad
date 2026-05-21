@@ -25,7 +25,7 @@ export default function Register() {
     
     setLoading(true);
     try {
-      await register(form.name, form.email, form.company, form.password);
+      await register(form.name, form.email, form.password);
       navigate('/dashboard');
     } catch (err) {
       setError(err.message || 'No se pudo registrar. Intenta de nuevo.');

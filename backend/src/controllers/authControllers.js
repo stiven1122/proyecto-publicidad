@@ -5,33 +5,52 @@ const { generarToken } = require('../middlewares/auth')
 const registrar = async (req, res) => {
   const { nombre, email, password, rol } = req.body
   try {
+    // Verificar que el email no esté en uso
+    const existente = await prisma.usuario.findUnique({ where: { email } })
+    if (existente) {
+      return res.status(400).json({
+        error: 'Correo en uso',
+        mensaje: 'El correo electrónico ya está registrado. Usa otro o inicia sesión.'
+      })
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10)
-    const result = await prisma.$queryRaw`
-      SELECT * FROM sp_registrar_usuario(${nombre}, ${email}, ${hashedPassword}, ${rol || 'usuario'}, 'activo')
-    `
-    const usuario = result[0]
-    
+    const usuario = await prisma.usuario.create({
+      data: {
+        nombre,
+        email,
+        password: hashedPassword,
+        rol: rol || 'usuario',
+        estado: 'activo'
+      }
+    })
+
     // Si es usuario normal (cliente), crear cliente automáticamente vinculado
     if ((rol || 'usuario') !== 'admin') {
       try {
-        await prisma.$queryRaw`
-          SELECT * FROM sp_registrar_cliente(${nombre}, ${email}, NULL, NULL)
-        `
+        await prisma.cliente.create({
+          data: {
+            nombre,
+            email,
+            telefono: null,
+            direccion: null
+          }
+        })
       } catch (clientError) {
         console.error('Error creando cliente asociado:', clientError.message)
       }
     }
-    
+
     const token = generarToken({ id: usuario.id, email: usuario.email, rol: usuario.rol })
-    res.status(201).json({ 
-      mensaje: `Usuario "${usuario.nombre}" registrado exitosamente`, 
-      usuario, 
-      token 
+    res.status(201).json({
+      mensaje: `Usuario "${usuario.nombre}" registrado exitosamente`,
+      usuario: { id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol },
+      token
     })
   } catch (error) {
-    res.status(500).json({ 
+    res.status(500).json({
       error: `Error al registrar usuario: ${error.message}`,
-      mensaje: 'No se pudo completar el registro. Verifica que el correo no esté en uso.'
+      mensaje: 'No se pudo completar el registro. Intenta de nuevo más tarde.'
     })
   }
 }

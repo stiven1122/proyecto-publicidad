@@ -74,7 +74,7 @@ export default function Login() {
           disabled={loading}
           className="w-full py-3 bg-gray-900 text-white text-sm font-semibold rounded-lg hover:bg-gray-800 disabled:opacity-50 transition-colors mt-2"
         >
-          {loading ? 'Iniciando...' : 'Iniciar Sesi&oacute;n'}
+          {loading ? 'Iniciando...' : 'Inicio de Sesi&oacute;n'}
         </button>
       </form>
 

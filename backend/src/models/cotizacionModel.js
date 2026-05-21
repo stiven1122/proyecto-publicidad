@@ -21,6 +21,22 @@ const crearCotizacionCampana = async (data) => {
     })
 }
 
+const cotizarCampana = async (id, data) => {
+    return await prisma.cotizacionCampana.update({
+        where: { id: Number(id) },
+        data: {
+            estado: 'cotizada',
+            presupuesto: data.presupuesto ? Number(data.presupuesto) : null,
+            fechaInicio: data.fechaInicio ? new Date(data.fechaInicio) : null,
+            fechaFin: data.fechaFin ? new Date(data.fechaFin) : null,
+            respuesta: data.respuesta || null,
+            objetivos: data.objetivos || null,
+            plataformas: data.plataformas || [],
+            fechaRespuesta: new Date()
+        }
+    })
+}
+
 const actualizarEstadoCotizacionCampana = async (id, estado) => {
     return await prisma.cotizacionCampana.update({
         where: { id: Number(id) },
@@ -69,6 +85,7 @@ const actualizarEstadoCotizacionProducto = async (id, estado) => {
 module.exports = {
     listarCotizacionesCampana,
     crearCotizacionCampana,
+    cotizarCampana,
     actualizarEstadoCotizacionCampana,
     listarCotizacionesProducto,
     crearCotizacionProducto,
