@@ -18,7 +18,21 @@ const { obtenerProductos } = require('./controllers/productoControllers')
 
 const app = express()
 
-app.use(cors())
+const allowedOrigins = process.env.FRONTEND_URL
+  ? process.env.FRONTEND_URL.split(',').map(url => url.trim())
+  : ['http://localhost:5173', 'http://localhost:3000']
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Permite peticiones sin origin (ej. Postman, curl) y los orígenes permitidos
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
+  credentials: true
+}))
 app.use(express.json())
 
 app.get('/', (req, res) => res.json({ 
